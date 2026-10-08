@@ -30,6 +30,34 @@ const DOMElements = {
   // Tabla
   tablaBody: document.getElementById('tabla-anuncios-body'),
 
+  // Modal Crear Directo
+  modalCrear: document.getElementById('modal-crear'),
+  btnAbrirCrear: document.getElementById('btn-abrir-crear'),
+  btnCerrarCrear: document.getElementById('btn-cerrar-crear'),
+  formCrear: document.getElementById('form-crear'),
+  crearMonto: document.getElementById('crear-monto'),
+  crearTitulo: document.getElementById('crear-titulo'),
+  crearLink: document.getElementById('crear-link'),
+  tabCrearSubir: document.getElementById('tab-crear-subir'),
+  tabCrearLink: document.getElementById('tab-crear-link'),
+  panelCrearSubir: document.getElementById('panel-crear-subir'),
+  panelCrearLink: document.getElementById('panel-crear-link'),
+  crearArchivoImagen: document.getElementById('crear-archivo-imagen'),
+  crearImagenUrl: document.getElementById('crear-imagen-url'),
+  crearImagenFinal: document.getElementById('crear-imagen-final'),
+  crearEstadoCompresion: document.getElementById('crear-estado-compresion'),
+  crearTextoCompresion: document.getElementById('crear-texto-compresion'),
+  crearPreviewContainer: document.getElementById('crear-preview-container'),
+  crearPreviewImg: document.getElementById('crear-preview-img'),
+  crearPreviewInfo: document.getElementById('crear-preview-info'),
+  crearBtnQuitarImagen: document.getElementById('crear-btn-quitar-imagen'),
+  crearDescripcion: document.getElementById('crear-descripcion'),
+  crearWhatsapp: document.getElementById('crear-whatsapp'),
+  crearInstagram: document.getElementById('crear-instagram'),
+  crearEstado: document.getElementById('crear-estado'),
+  crearError: document.getElementById('crear-error'),
+  btnGuardarCrear: document.getElementById('btn-guardar-crear'),
+
   // Modal Editar
   modalEdit: document.getElementById('modal-editar'),
   btnCerrarEdit: document.getElementById('btn-cerrar-edit'),
@@ -114,6 +142,18 @@ document.addEventListener('DOMContentLoaded', () => {
   if (DOMElements.btnRefrescar) {
     DOMElements.btnRefrescar.addEventListener('click', cargarDatosDashboard);
   }
+
+  // Modal crear directo
+  if (DOMElements.btnAbrirCrear) {
+    DOMElements.btnAbrirCrear.addEventListener('click', abrirModalCrear);
+  }
+  if (DOMElements.btnCerrarCrear) {
+    DOMElements.btnCerrarCrear.addEventListener('click', cerrarModalCrear);
+  }
+  if (DOMElements.formCrear) {
+    DOMElements.formCrear.addEventListener('submit', guardarNuevaPublicacionAdmin);
+  }
+  configurarUploaderAdmin();
 
   // Modal editar cerrar
   if (DOMElements.btnCerrarEdit) {
@@ -356,3 +396,220 @@ window.eliminarAnuncio = async function (id) {
     alert('Error: ' + err.message);
   }
 };
+
+/**
+ * Abre el modal para crear un anuncio directo
+ */
+window.abrirModalCrear = function () {
+  if (DOMElements.formCrear) DOMElements.formCrear.reset();
+  limpiarPreviewCrear();
+  if (DOMElements.crearError) DOMElements.crearError.classList.add('hidden');
+  if (DOMElements.modalCrear) {
+    DOMElements.modalCrear.classList.remove('hidden');
+    setTimeout(() => {
+      if (DOMElements.crearMonto) DOMElements.crearMonto.focus();
+    }, 50);
+  }
+};
+
+window.cerrarModalCrear = function () {
+  if (DOMElements.modalCrear) {
+    DOMElements.modalCrear.classList.add('hidden');
+  }
+};
+
+function limpiarPreviewCrear() {
+  if (DOMElements.crearImagenFinal) DOMElements.crearImagenFinal.value = '';
+  if (DOMElements.crearArchivoImagen) DOMElements.crearArchivoImagen.value = '';
+  if (DOMElements.crearImagenUrl) DOMElements.crearImagenUrl.value = '';
+  if (DOMElements.crearPreviewContainer) DOMElements.crearPreviewContainer.classList.add('hidden');
+  if (DOMElements.crearPreviewImg) DOMElements.crearPreviewImg.src = '';
+  if (DOMElements.crearPreviewInfo) DOMElements.crearPreviewInfo.textContent = '';
+  if (DOMElements.crearEstadoCompresion) DOMElements.crearEstadoCompresion.classList.add('hidden');
+}
+
+/**
+ * Configura los eventos del selector de imagen en el modal de creación admin
+ */
+function configurarUploaderAdmin() {
+  if (!DOMElements.tabCrearSubir || !DOMElements.tabCrearLink) return;
+
+  DOMElements.tabCrearSubir.addEventListener('click', () => {
+    DOMElements.tabCrearSubir.className = 'px-2 py-0.5 rounded-md bg-amber-500 text-slate-950 shadow-xs cursor-pointer';
+    DOMElements.tabCrearLink.className = 'px-2 py-0.5 rounded-md text-slate-400 hover:text-white cursor-pointer';
+    DOMElements.panelCrearSubir.classList.remove('hidden');
+    DOMElements.panelCrearLink.classList.add('hidden');
+  });
+
+  DOMElements.tabCrearLink.addEventListener('click', () => {
+    DOMElements.tabCrearLink.className = 'px-2 py-0.5 rounded-md bg-amber-500 text-slate-950 shadow-xs cursor-pointer';
+    DOMElements.tabCrearSubir.className = 'px-2 py-0.5 rounded-md text-slate-400 hover:text-white cursor-pointer';
+    DOMElements.panelCrearLink.classList.remove('hidden');
+    DOMElements.panelCrearSubir.classList.add('hidden');
+  });
+
+  // Archivo con auto-compresión
+  if (DOMElements.crearArchivoImagen) {
+    DOMElements.crearArchivoImagen.addEventListener('change', async (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        alert('El archivo seleccionado debe ser una imagen válida.');
+        return;
+      }
+
+      await procesarYSubirImagenAdmin(file);
+    });
+  }
+
+  // URL manual con debounce
+  if (DOMElements.crearImagenUrl) {
+    let t = null;
+    DOMElements.crearImagenUrl.addEventListener('input', () => {
+      clearTimeout(t);
+      t = setTimeout(() => {
+        const url = (DOMElements.crearImagenUrl.value || '').trim();
+        if (!url) {
+          limpiarPreviewCrear();
+          return;
+        }
+        DOMElements.crearImagenFinal.value = url;
+        mostrarPreviewAdmin(url, null);
+      }, 350);
+    });
+  }
+
+  if (DOMElements.crearBtnQuitarImagen) {
+    DOMElements.crearBtnQuitarImagen.addEventListener('click', limpiarPreviewCrear);
+  }
+}
+
+async function procesarYSubirImagenAdmin(file) {
+  try {
+    if (DOMElements.crearEstadoCompresion) DOMElements.crearEstadoCompresion.classList.remove('hidden');
+    if (DOMElements.btnGuardarCrear) DOMElements.btnGuardarCrear.disabled = true;
+
+    const imgBitmap = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error('Formato de imagen inválido.'));
+        img.src = e.target.result;
+      };
+      reader.onerror = () => reject(new Error('Error de lectura de archivo.'));
+      reader.readAsDataURL(file);
+    });
+
+    const MAX_WIDTH = 1200;
+    const MAX_HEIGHT = 630;
+    let width = imgBitmap.width;
+    let height = imgBitmap.height;
+
+    if (width > MAX_WIDTH || height > MAX_HEIGHT) {
+      const ratio = Math.min(MAX_WIDTH / width, MAX_HEIGHT / height);
+      width = Math.round(width * ratio);
+      height = Math.round(height * ratio);
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(imgBitmap, 0, 0, width, height);
+
+    let compressedDataUrl = canvas.toDataURL('image/webp', 0.82);
+    if (!compressedDataUrl.startsWith('data:image/webp')) {
+      compressedDataUrl = canvas.toDataURL('image/jpeg', 0.82);
+    }
+
+    const res = await fetch('/api/subir-imagen', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: compressedDataUrl, filename: file.name })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) throw new Error(data.error || 'Error al subir');
+
+    DOMElements.crearImagenFinal.value = data.url;
+    const pesoKb = (data.sizeBytes / 1024).toFixed(0);
+    mostrarPreviewAdmin(data.url, `${pesoKb} KB (Optimizada)`);
+  } catch (err) {
+    alert('Error con la imagen: ' + err.message);
+  } finally {
+    if (DOMElements.crearEstadoCompresion) DOMElements.crearEstadoCompresion.classList.add('hidden');
+    if (DOMElements.btnGuardarCrear) DOMElements.btnGuardarCrear.disabled = false;
+  }
+}
+
+function mostrarPreviewAdmin(url, info = null) {
+  if (!DOMElements.crearPreviewContainer) return;
+  DOMElements.crearPreviewContainer.classList.remove('hidden');
+  DOMElements.crearPreviewImg.src = url;
+  if (DOMElements.crearPreviewInfo) {
+    DOMElements.crearPreviewInfo.textContent = info ? `⚡ ${info}` : '';
+  }
+}
+
+/**
+ * Guarda una nueva publicación directa desde el panel de admin
+ */
+async function guardarNuevaPublicacionAdmin(e) {
+  e.preventDefault();
+
+  const monto_usd = Number(DOMElements.crearMonto.value);
+  const titulo = DOMElements.crearTitulo.value.trim();
+  const link_url = DOMElements.crearLink.value.trim();
+  const imagen_url = (DOMElements.crearImagenFinal.value || '').trim();
+  const descripcion = DOMElements.crearDescripcion.value.trim();
+  const whatsapp = DOMElements.crearWhatsapp.value.trim();
+  const instagram = DOMElements.crearInstagram.value.trim();
+  const estado = DOMElements.crearEstado.value || 'activo';
+
+  if (!titulo || !link_url || !monto_usd) {
+    DOMElements.crearError.textContent = 'Monto, título y enlace web son obligatorios.';
+    DOMElements.crearError.classList.remove('hidden');
+    return;
+  }
+
+  DOMElements.btnGuardarCrear.disabled = true;
+  DOMElements.btnGuardarCrear.textContent = 'Publicando...';
+  DOMElements.crearError.classList.add('hidden');
+
+  try {
+    const res = await fetch('/api/admin/anuncios', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + AdminState.token
+      },
+      body: JSON.stringify({
+        monto_usd,
+        titulo,
+        link_url,
+        imagen_url,
+        descripcion,
+        estado,
+        redes: {
+          whatsapp: whatsapp || null,
+          instagram: instagram || null
+        }
+      })
+    });
+
+    const data = await res.json();
+    if (!res.ok || !data.success) throw new Error(data.error || 'Error al crear publicación');
+
+    cerrarModalCrear();
+    cargarDatosDashboard();
+  } catch (err) {
+    DOMElements.crearError.textContent = err.message;
+    DOMElements.crearError.classList.remove('hidden');
+  } finally {
+    DOMElements.btnGuardarCrear.disabled = false;
+    DOMElements.btnGuardarCrear.textContent = '👑 Publicar en Cartelera Directo';
+  }
+}

@@ -160,10 +160,20 @@ def main():
             ssh,
             "curl -s http://127.0.0.1:3050/api/anuncios | head -c 120"
         )
-        if "success" in out or code == 0:
+        if code == 0 and "success" in out:
             print_ok("Endpoint interno /api/anuncios responde correctamente (HTTP 200).")
         else:
-            print_warn(f"Respuesta inesperada en health-check: {out[:100]}")
+            print_warn(f"Respuesta interna: {out[:120]}")
+
+        # Comprobar endpoint público a través de Nginx SSL
+        code_pub, out_pub, _ = ejecutar_comando(
+            ssh,
+            "curl -s -k https://reydelpuesto.mkcore.com.ar/api/anuncios | head -c 120"
+        )
+        if code_pub == 0 and "success" in out_pub:
+            print_ok("Endpoint público Nginx SSL responde correctamente (HTTP 200).")
+        else:
+            print_warn(f"Respuesta pública Nginx: {out_pub[:120]}")
 
         # Resumen final
         duracion = round(time.time() - inicio, 1)

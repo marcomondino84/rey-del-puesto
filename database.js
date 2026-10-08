@@ -179,6 +179,31 @@ const db = {
   },
 
   /**
+   * Crea un anuncio directo desde el panel de administración sin pasar por Mercado Pago
+   */
+  crearAnuncioAdmin({ titulo, descripcion, link_url, imagen_url, redes_json, monto_usd, monto_ars, estado = 'activo' }) {
+    const stmt = dbDriver.prepare(`
+      INSERT INTO anuncios (
+        titulo, descripcion, link_url, imagen_url, 
+        redes_json, monto_usd, monto_ars, mp_preference_id, mp_payment_id, estado
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, 'ADMIN_DIRECTO', 'ADMIN_DIRECTO', ?)
+    `);
+
+    const result = stmt.run(
+      titulo,
+      descripcion || '',
+      link_url,
+      imagen_url || '',
+      redes_json || '{}',
+      Number(monto_usd),
+      Number(monto_ars),
+      estado || 'activo'
+    );
+
+    return Number(result.lastInsertRowid);
+  },
+
+  /**
    * Actualiza los datos de un anuncio desde el panel de administración
    */
   actualizarAnuncio(id, { titulo, descripcion, link_url, imagen_url, redes_json, estado }) {

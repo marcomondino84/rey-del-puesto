@@ -495,6 +495,51 @@ app.get('/api/admin/datos', verificarAdminToken, (req, res) => {
 });
 
 /**
+ * POST /api/admin/anuncios
+ * Crea una publicación directa desde el panel de administración sin pasar por Mercado Pago
+ */
+app.post('/api/admin/anuncios', verificarAdminToken, async (req, res) => {
+  try {
+    const { titulo, descripcion, link_url, imagen_url, redes, monto_usd, estado } = req.body;
+
+    if (!titulo || !link_url) {
+      return res.status(400).json({ success: false, error: 'El título y el enlace web son obligatorios.' });
+    }
+
+    const montoNum = Number(monto_usd);
+    if (isNaN(montoNum) || montoNum <= 0) {
+      return res.status(400).json({ success: false, error: 'El monto en USD debe ser un número mayor a 0.' });
+    }
+
+    const cotizacion = await obtenerCotizacionDolarBlue();
+    const montoArs = Math.round(montoNum * Number(cotizacion.venta));
+    const redesJson = typeof redes === 'object' ? JSON.stringify(redes) : (redes || '{}');
+
+    const nuevoId = db.crearAnuncioAdmin({
+      titulo: titulo.trim(),
+      descripcion: (descripcion || '').trim(),
+      link_url: link_url.trim(),
+      imagen_url: (imagen_url || '').trim(),
+      redes_json: redesJson,
+      monto_usd: montoNum,
+      monto_ars: montoArs,
+      estado: estado || 'activo'
+    });
+
+    console.log(`👑 Publicación directa creada por admin: #${nuevoId} - "${titulo}" ($${montoNum} USD)`);
+
+    res.json({
+      success: true,
+      id: nuevoId,
+      mensaje: 'Publicación creada exitosamente en la cartelera.'
+    });
+  } catch (err) {
+    console.error('Error al crear anuncio admin:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+/**
  * PUT /api/admin/anuncios/:id
  * Modifica los datos de cualquier anuncio
  */
