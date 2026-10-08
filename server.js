@@ -182,32 +182,43 @@ app.post('/api/crear-puja', async (req, res) => {
 
     if (mpPreference) {
       try {
-        const preferenceData = {
-          body: {
-            items: [
-              {
-                id: `puesto-${anuncioId}`,
-                title: `Rey del Puesto #1: ${titulo.trim().substring(0, 40)}`,
-                description: `Puja de subasta para robar el Puesto #1 publicitario ($${montoNumerico} USD)`,
-                quantity: 1,
-                unit_price: Number(montoArs),
-                currency_id: 'ARS'
-              }
-            ],
-            external_reference: String(anuncioId),
-            notification_url: `${BASE_URL}/api/webhook-mp`,
-            back_urls: {
-              success: `${BASE_URL}/?pago=exito&id=${anuncioId}`,
-              pending: `${BASE_URL}/?pago=pendiente&id=${anuncioId}`,
-              failure: `${BASE_URL}/?pago=fallo&id=${anuncioId}`
-            },
-            auto_return: 'approved'
-          }
+        const preferenceBody = {
+          items: [
+            {
+              id: `puesto-${anuncioId}`,
+              title: `Rey del Puesto #1: ${titulo.trim().substring(0, 40)}`,
+              description: `Puja de subasta para ser el Rey del Puesto ($${montoNumerico} USD)`,
+              quantity: 1,
+              unit_price: Number(montoArs),
+              currency_id: 'ARS'
+            }
+          ],
+          external_reference: String(anuncioId)
         };
 
-        const mpRes = await mpPreference.create(preferenceData);
+        const isPublicUrl = BASE_URL.startsWith('https://') && !BASE_URL.includes('localhost') && !BASE_URL.includes('127.0.0.1');
+
+        if (isPublicUrl) {
+          preferenceBody.notification_url = `${BASE_URL}/api/webhook-mp`;
+          preferenceBody.back_urls = {
+            success: `${BASE_URL}/?pago=exito&id=${anuncioId}`,
+            pending: `${BASE_URL}/?pago=pendiente&id=${anuncioId}`,
+            failure: `${BASE_URL}/?pago=fallo&id=${anuncioId}`
+          };
+          preferenceBody.auto_return = 'approved';
+        } else {
+          // En entorno de desarrollo local con localhost
+          preferenceBody.back_urls = {
+            success: `https://google.com`,
+            pending: `https://google.com`,
+            failure: `https://google.com`
+          };
+        }
+
+        const mpRes = await mpPreference.create({ body: preferenceBody });
         initPoint = mpRes.init_point || mpRes.sandbox_init_point;
         db.actualizarPreferenceId(anuncioId, mpRes.id);
+        console.log(`✅ Preferencia de Mercado Pago creada con éxito: ${mpRes.id}`);
       } catch (mpErr) {
         console.error('Error al crear preferencia con Mercado Pago:', mpErr);
         // Fallback a simulación si las credenciales fallan
