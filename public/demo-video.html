@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demostración: Destronamiento del Rey • Rey del Puesto</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            display: ['"Outfit"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen py-8 px-4 flex flex-col items-center justify-start">
+
+  <!-- Header -->
+  <header class="max-w-4xl w-full text-center mb-8">
+    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold uppercase tracking-wider mb-3">
+      👑 Simulación de Subasta en Tiempo Real
+    </div>
+    <h1 class="text-3xl sm:text-5xl font-black font-display text-white tracking-tight">
+      ¡El Rey ha sido Destronado!
+    </h1>
+    <p class="text-slate-400 text-sm sm:text-base mt-2 max-w-2xl mx-auto">
+      Video demostrativo paso a paso: cómo <strong class="text-amber-400">Smash Burger King ($3 USD)</strong> arrebata el <span class="text-white font-bold">Puesto #1</span> y <strong class="text-emerald-400">Mk Core ($1 USD)</strong> pasa automáticamente al <span class="text-white font-bold">Puesto #2</span> de la cartelera de honor.
+    </p>
+  </header>
+
+  <!-- Video Container -->
+  <main class="max-w-4xl w-full bg-slate-950 border border-slate-800 rounded-3xl p-4 sm:p-6 shadow-2xl flex flex-col gap-6">
+    <div class="relative w-full aspect-[16/10] rounded-2xl overflow-hidden bg-black border border-slate-800 shadow-inner group">
+      <video id="player" controls autoplay loop playsinline class="w-full h-full object-contain">
+        <source src="/video_destronamiento.mp4" type="video/mp4">
+        Tu navegador no soporta reproducción de video MP4.
+      </video>
+    </div>
+
+    <!-- Controles y escenas interactivas -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <button onclick="saltarA(0)" class="p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-left transition-all">
+        <span class="text-xs text-amber-400 font-bold block">Paso 1 (0:00)</span>
+        <span class="text-xs text-slate-300 font-medium">Mk Core reina ($1 USD)</span>
+      </button>
+
+      <button onclick="saltarA(3.5)" class="p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-left transition-all">
+        <span class="text-xs text-amber-400 font-bold block">Paso 2 (0:03)</span>
+        <span class="text-xs text-slate-300 font-medium">Nueva puja ($3 USD)</span>
+      </button>
+
+      <button onclick="saltarA(8.0)" class="p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-left transition-all">
+        <span class="text-xs text-amber-400 font-bold block">Paso 3 (0:08)</span>
+        <span class="text-xs text-slate-300 font-medium">Efecto Destronamiento</span>
+      </button>
+
+      <button onclick="saltarA(10.5)" class="p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-left transition-all">
+        <span class="text-xs text-amber-400 font-bold block">Paso 4 (0:10)</span>
+        <span class="text-xs text-slate-300 font-medium">Nuevo Puesto #1 y #2</span>
+      </button>
+    </div>
+
+    <!-- Comparativa Antes vs Después -->
+    <div class="border-t border-slate-800/80 pt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+      
+      <!-- Estado Inicial -->
+      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-bold text-slate-400 uppercase">Estado Inicial</span>
+          <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-xs font-semibold">Antes</span>
+        </div>
+        <div class="space-y-2 text-xs text-slate-300">
+          <div class="p-2.5 rounded-lg bg-slate-950/50 border border-slate-800 flex items-center justify-between">
+            <span class="font-bold text-amber-400">👑 Puesto #1:</span>
+            <span>Mk Core | Sistema de Gestión ($1 USD)</span>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-950/50 border border-slate-800 flex items-center justify-between text-slate-500">
+            <span class="font-bold">⚔️ Puestos #2 - #100:</span>
+            <span>Vacíos (Aún sin anuncios)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estado Actualizado -->
+      <div class="bg-amber-500/5 border border-amber-500/30 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-bold text-amber-400 uppercase">Estado Tras Destronamiento</span>
+          <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-xs font-semibold">Nuevo</span>
+        </div>
+        <div class="space-y-2 text-xs text-slate-300">
+          <div class="p-2.5 rounded-lg bg-amber-950/30 border border-amber-500/30 flex items-center justify-between">
+            <span class="font-bold text-amber-400">👑 Puesto #1 (NUEVO REY):</span>
+            <span class="font-bold text-white">Smash Burger King 🍔 ($3 USD)</span>
+          </div>
+          <div class="p-2.5 rounded-lg bg-emerald-950/30 border border-emerald-500/30 flex items-center justify-between">
+            <span class="font-bold text-emerald-400">🛡️ Puesto #2 (LISTA DE HONOR):</span>
+            <span class="text-slate-200">Mk Core | Sistema de Gestión ($1 USD)</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Enlaces directos de navegación y descargas -->
+    <div class="flex flex-wrap items-center justify-between gap-4 pt-2">
+      <a href="/" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-sm transition-all shadow-lg">
+        <span>🌐 Ver Cartelera en Vivo</span>
+        <span>→</span>
+      </a>
+
+      <div class="flex items-center gap-3">
+        <a href="/video_destronamiento.mp4" download class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 transition-all">
+          <span>📥</span> Descargar MP4
+        </a>
+        <a href="/video_destronamiento.gif" download class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 transition-all">
+          <span>🖼️</span> Descargar GIF
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const player = document.getElementById('player');
+    function saltarA(segundos) {
+      if (!player) return;
+      player.currentTime = segundos;
+      player.play();
+    }
+  </script>
+</body>
+</html>
