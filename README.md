@@ -1,4 +1,4 @@
-# RobameElPuesto (Rey del Puesto) 👑
+# Rey del Puesto 👑
 
 Plataforma publicitaria dinámica basada en el concepto **"King of the Hill"** (Rey de la Colina). Los anunciantes compiten en una subasta en tiempo real en USD cobrada en pesos argentinos (ARS) mediante **Mercado Pago** y cotizada con **DolarApi**.
 
@@ -59,7 +59,7 @@ Este proyecto está diseñado para convivir en el mismo servidor VPS donde ya co
 En el servidor, crear el archivo `.env` con un puerto exclusivo (por ejemplo, `3050`):
 ```env
 PORT=3050
-BASE_URL=https://robameelpuesto.tudominio.com
+BASE_URL=https://reydelpuesto.tudominio.com
 MP_ACCESS_TOKEN=APP_USR-tu-access-token-de-mercadopago
 DOLAR_BLUE_FALLBACK=1350
 ```
@@ -70,15 +70,15 @@ DOLAR_BLUE_FALLBACK=1350
 npm install --production
 
 # Iniciar proceso aislado con PM2
-pm2 start server.js --name "robameelpuesto"
+pm2 start server.js --name "reydelpuesto"
 pm2 save
 ```
 
 ### 3. Configuración de Nginx (Server Block independiente)
-Crear un archivo en `/etc/nginx/sites-available/robameelpuesto`:
+Crear un archivo en `/etc/nginx/sites-available/reydelpuesto`:
 ```nginx
 server {
-    server_name robameelpuesto.tudominio.com;
+    server_name reydelpuesto.tudominio.com;
 
     location / {
         proxy_pass http://127.0.0.1:3050;
@@ -96,8 +96,8 @@ server {
 
 Habilitar el sitio y emitir certificado SSL:
 ```bash
-sudo ln -s /etc/nginx/sites-available/robameelpuesto /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/reydelpuesto /etc/nginx/sites-enabled/
 sudo nginx -t
 sudo systemctl reload nginx
-sudo certbot --nginx -d robameelpuesto.tudominio.com
+sudo certbot --nginx -d reydelpuesto.tudominio.com
 ```

@@ -1,6 +1,6 @@
 /**
  * public/app.js
- * Lógica frontend de la aplicación RobameElPuesto (Rey del Puesto).
+ * Lógica frontend de la aplicación Rey del Puesto.
  * Maneja la interacción en tiempo real, renderizado de componentes y cotizaciones.
  */
 
@@ -95,7 +95,7 @@ function renderizarInterfaz() {
   }
   
   if (DOM.btnCtaText) {
-    DOM.btnCtaText.textContent = `Robar el Puesto #1 (Desde ${formatUsd(AppState.minimoUsdRequerido)})`;
+    DOM.btnCtaText.textContent = `Ser el Rey del Puesto (Desde ${formatUsd(AppState.minimoUsdRequerido)})`;
   }
 
   // 2. Contador de anuncios
@@ -391,7 +391,7 @@ async function procesarEnvioPuja(e) {
 
   // Validación en frontend
   if (montoUsd < AppState.minimoUsdRequerido) {
-    mostrarErrorFormulario(`El monto mínimo para robar el puesto #1 es ${formatUsd(AppState.minimoUsdRequerido)}.`);
+    mostrarErrorFormulario(`El monto mínimo para ser el Rey del Puesto es ${formatUsd(AppState.minimoUsdRequerido)}.`);
     return;
   }
 

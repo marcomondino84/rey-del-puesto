@@ -1,6 +1,6 @@
-# Rey del Puesto (RobameElPuesto) - Guía y Orquestación de Agentes
+# Rey del Puesto - Guía y Orquestación de Agentes
 
-Bienvenido al espacio de trabajo de **"Rey del Puesto"** (nombre público en la app: *RobameElPuesto*).
+Bienvenido al espacio de trabajo de **"Rey del Puesto"**.
 Este documento rige la arquitectura general, el aislamiento en el servidor VPS de DonWeb y la orquestación del flujo de trabajo entre los tres agentes especializados.
 
 ---

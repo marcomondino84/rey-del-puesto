@@ -1,6 +1,6 @@
 /**
  * server.js
- * Servidor principal de "Rey del Puesto" (RobameElPuesto).
+ * Servidor principal de "Rey del Puesto".
  * Desarrollado con Node.js, Express, SQLite y Mercado Pago SDK v2.
  */
 
@@ -187,7 +187,7 @@ app.post('/api/crear-puja', async (req, res) => {
             items: [
               {
                 id: `puesto-${anuncioId}`,
-                title: `RobameElPuesto #1: ${titulo.trim().substring(0, 40)}`,
+                title: `Rey del Puesto #1: ${titulo.trim().substring(0, 40)}`,
                 description: `Puja de subasta para robar el Puesto #1 publicitario ($${montoNumerico} USD)`,
                 quantity: 1,
                 unit_price: Number(montoArs),
@@ -311,7 +311,7 @@ app.get('*', (req, res) => {
 // Inicialización del servidor
 app.listen(PORT, () => {
   console.log(`=======================================================`);
-  console.log(`🚀 Rey del Puesto (RobameElPuesto) corriendo en:`);
+  console.log(`🚀 Rey del Puesto corriendo en:`);
   console.log(`   URL Local:   http://localhost:${PORT}`);
   console.log(`   BASE_URL:    ${BASE_URL}`);
   console.log(`   Puerto:      ${PORT} (Aislado de mkcore)`);

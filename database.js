@@ -1,6 +1,6 @@
 /**
  * database.js
- * Módulo de persistencia SQLite para "Rey del Puesto" (RobameElPuesto).
+ * Módulo de persistencia SQLite para "Rey del Puesto".
  * Diseñado con compatibilidad universal: utiliza el motor nativo de Node.js (node:sqlite)
  * y soporta better-sqlite3 como fallback si estuviera instalado.
  */
