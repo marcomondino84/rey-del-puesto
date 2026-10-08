@@ -1,0 +1,24 @@
+{
+  "name": "rey-del-puesto",
+  "version": "1.0.0",
+  "description": "RobameElPuesto - Cartelera publicitaria King of the Hill con subasta dinámica",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [
+    "auction",
+    "king-of-the-hill",
+    "advertising",
+    "mercadopago"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mercadopago": "^2.3.0"
+  }
+}

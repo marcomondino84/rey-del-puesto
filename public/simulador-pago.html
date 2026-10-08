@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-50">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulador de Pago | RobameElPuesto</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-full flex items-center justify-center p-4">
+  <div class="max-w-md w-full bg-white rounded-3xl shadow-xl border border-slate-200 p-8 text-center space-y-6">
+    <div class="w-16 h-16 rounded-2xl bg-sky-100 text-sky-600 flex items-center justify-center mx-auto text-3xl font-black">
+      💳
+    </div>
+    
+    <div>
+      <span class="px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold uppercase tracking-wider">
+        Modo Simulación de Desarrollo
+      </span>
+      <h1 class="text-2xl font-black text-slate-900 mt-3">Pasarela Mercado Pago</h1>
+      <p class="text-xs text-slate-500 mt-1">Este entorno simula la aprobación instantánea del Checkout Pro de Mercado Pago para pruebas locales.</p>
+    </div>
+
+    <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 text-left space-y-2 text-sm">
+      <div class="flex justify-between">
+        <span class="text-slate-500">ID de Anuncio:</span>
+        <span id="sim-id" class="font-bold text-slate-900">#...</span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-slate-500">Monto Subastado (USD):</span>
+        <span id="sim-usd" class="font-bold text-slate-900">$... USD</span>
+      </div>
+      <div class="flex justify-between border-t border-slate-200 pt-2 text-base">
+        <span class="font-semibold text-slate-700">Total a Pagar (ARS):</span>
+        <span id="sim-ars" class="font-black text-emerald-600">$... ARS</span>
+      </div>
+    </div>
+
+    <div class="space-y-3">
+      <button id="btn-aprobar" class="w-full py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md shadow-emerald-600/30 transition-all cursor-pointer">
+        ✅ Simular Pago Aprobado
+      </button>
+      <a href="/" class="block text-xs font-semibold text-slate-500 hover:text-slate-800">
+        Cancelar y volver a la cartelera
+      </a>
+    </div>
+
+    <p id="msg-status" class="text-xs font-bold text-slate-600 hidden"></p>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get('id');
+    const usd = urlParams.get('usd') || '1';
+    const ars = urlParams.get('ars') || '1350';
+
+    document.getElementById('sim-id').textContent = '#' + (id || '0');
+    document.getElementById('sim-usd').textContent = '$' + usd + ' USD';
+    document.getElementById('sim-ars').textContent = '$' + Number(ars).toLocaleString('es-AR') + ' ARS';
+
+    document.getElementById('btn-aprobar').addEventListener('click', async () => {
+      const btn = document.getElementById('btn-aprobar');
+      const msg = document.getElementById('msg-status');
+      btn.disabled = true;
+      btn.textContent = 'Procesando aprobación...';
+
+      try {
+        const res = await fetch('/api/simular-aprobacion', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id })
+        });
+        const data = await res.json();
+        if (data.success) {
+          msg.textContent = '¡Pago aprobado con éxito! Redirigiendo a la cartelera...';
+          msg.className = 'text-xs font-bold text-emerald-600';
+          msg.classList.remove('hidden');
+          setTimeout(() => {
+            window.location.href = `/?pago=exito&id=${id}`;
+          }, 1200);
+        } else {
+          throw new Error(data.error || 'Error al aprobar simulación');
+        }
+      } catch (err) {
+        msg.textContent = 'Error: ' + err.message;
+        msg.className = 'text-xs font-bold text-rose-600';
+        msg.classList.remove('hidden');
+        btn.disabled = false;
+        btn.textContent = 'Reintentar';
+      }
+    });
+  </script>
+</body>
+</html>

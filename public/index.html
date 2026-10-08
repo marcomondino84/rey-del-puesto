@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-50">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RobameElPuesto | La subasta publicitaria King of the Hill</title>
+  <meta name="description" content="Cartelera publicitaria interactiva donde los anunciantes compiten por el Puesto #1 en una subasta dinámica. Roba el trono pagando $1 USD más.">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8'
+            },
+            gold: {
+              400: '#fbbf24',
+              500: '#f59e0b',
+              600: '#d97706'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="min-h-full flex flex-col text-slate-800 antialiased selection:bg-amber-100 selection:text-amber-900">
+
+  <!-- ==================== HEADER ==================== -->
+  <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-xs">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+      
+      <!-- Brand & Dinámica -->
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-300 flex items-center justify-center shadow-md shadow-amber-500/20 text-2xl animate-crown">
+          👑
+        </div>
+        <div>
+          <a href="/" class="text-xl sm:text-2xl font-black tracking-tight text-slate-900 font-display flex items-center gap-1.5 hover:opacity-90">
+            RobameElPuesto
+          </a>
+          <p class="text-xs text-slate-500 font-medium hidden sm:block">
+            Subasta publicitaria en vivo • Roba el Puesto #1 por solo <span class="font-bold text-amber-600">+$1 USD</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Ticker Cotización & CTA -->
+      <div class="flex items-center gap-3 sm:gap-4">
+        <!-- Cotización Dólar Blue -->
+        <div id="dolar-ticker" class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700" title="Cotización oficial provista por DolarApi">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>1 USD ≈ <span id="ticker-ars" class="text-slate-900 font-bold">$...</span> ARS</span>
+        </div>
+
+        <!-- Botón CTA Principal -->
+        <button id="btn-abrir-puja" type="button" class="relative group inline-flex items-center gap-2 px-4 sm:px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-bold text-sm shadow-md shadow-amber-500/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer">
+          <span class="text-base group-hover:scale-110 transition-transform">👑</span>
+          <span id="btn-cta-text">Robar el Puesto #1</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ==================== BANNER NOTIFICACIÓN (Éxito o Fallo) ==================== -->
+  <div id="alert-banner" class="hidden max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 w-full"></div>
+
+  <!-- ==================== CONTENIDO PRINCIPAL ==================== -->
+  <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+    
+    <!-- Hero Section: El Rey Actual (#1) -->
+    <section>
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🏆</span>
+          <h2 class="text-base font-bold uppercase tracking-wider text-amber-700 font-display">
+            El Puesto #1 (Actual Rey)
+          </h2>
+        </div>
+        <span class="text-xs text-slate-500 font-medium">Actualizado en tiempo real</span>
+      </div>
+
+      <!-- Contenedor dinámico del Rey -->
+      <div id="hero-king-container">
+        <!-- Skeleton loader inicial -->
+        <div class="animate-pulse bg-white border border-slate-200 rounded-2xl p-8 flex flex-col md:flex-row gap-6 items-center">
+          <div class="w-full md:w-64 h-48 bg-slate-200 rounded-xl"></div>
+          <div class="flex-1 space-y-4 w-full">
+            <div class="h-6 bg-slate-200 rounded w-1/3"></div>
+            <div class="h-8 bg-slate-200 rounded w-2/3"></div>
+            <div class="h-4 bg-slate-200 rounded w-full"></div>
+            <div class="h-10 bg-slate-200 rounded w-1/4"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lista de Puestos #2 al #100 -->
+    <section class="space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">⚔️</span>
+          <h3 class="text-lg font-bold text-slate-900 font-display">
+            Top 2 al 100 • En disputa por el trono
+          </h3>
+          <span id="badge-total-anuncios" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-200 text-slate-700">
+            0 anuncios
+          </span>
+        </div>
+        <p class="text-xs text-slate-500 hidden sm:block">
+          Ordenados descendentemente por monto pagado
+        </p>
+      </div>
+
+      <!-- Contenedor dinámico de anuncios -->
+      <div id="ranking-list" class="space-y-2.5">
+        <!-- Rellenado por app.js -->
+      </div>
+    </section>
+
+    <!-- Explicación de la dinámica -->
+    <section class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs">
+      <h4 class="text-base font-bold text-slate-900 font-display mb-3 flex items-center gap-2">
+        <span>💡</span> ¿Cómo funciona RobameElPuesto?
+      </h4>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-slate-600">
+        <div class="flex flex-col gap-1.5 p-4 rounded-xl bg-slate-50 border border-slate-100">
+          <span class="font-bold text-slate-900 flex items-center gap-1.5 text-base">
+            <span class="w-6 h-6 rounded-full bg-amber-100 text-amber-800 text-xs flex items-center justify-center font-bold">1</span>
+            Pujá para ser el Rey
+          </span>
+          <p>Para arrebatar el puesto #1 sólo necesitás superar la puja del rey actual por un mínimo de <strong>$1 USD</strong>.</p>
+        </div>
+        <div class="flex flex-col gap-1.5 p-4 rounded-xl bg-slate-50 border border-slate-100">
+          <span class="font-bold text-slate-900 flex items-center gap-1.5 text-base">
+            <span class="w-6 h-6 rounded-full bg-amber-100 text-amber-800 text-xs flex items-center justify-center font-bold">2</span>
+            Pagá en pesos con MP
+          </span>
+          <p>Tu puja se cotiza automáticamente al dólar blue del momento y se abona de forma instantánea y segura con <strong>Mercado Pago</strong>.</p>
+        </div>
+        <div class="flex flex-col gap-1.5 p-4 rounded-xl bg-slate-50 border border-slate-100">
+          <span class="font-bold text-slate-900 flex items-center gap-1.5 text-base">
+            <span class="w-6 h-6 rounded-full bg-amber-100 text-amber-800 text-xs flex items-center justify-center font-bold">3</span>
+            Visibilidad perpetua
+          </span>
+          <p>Si alguien te supera, tu anuncio no desaparece: pasa al puesto #2 y sigue visible en el Top 100 de la cartelera.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="mt-auto border-t border-slate-200 bg-white py-6">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+      <p>© 2026 <strong>RobameElPuesto</strong>. Todos los derechos reservados.</p>
+      <div class="flex items-center gap-4">
+        <span>Cotización en vivo vía <a href="https://dolarapi.com" target="_blank" rel="noopener noreferrer" class="underline hover:text-slate-800">DolarApi</a></span>
+        <span>•</span>
+        <span>Pagos con <a href="https://mercadopago.com.ar" target="_blank" rel="noopener noreferrer" class="underline hover:text-slate-800">Mercado Pago</a></span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== MODAL DE PUJA ==================== -->
+  <div id="modal-puja" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 overflow-y-auto modal-backdrop">
+    <div class="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-8 transform transition-all">
+      
+      <!-- Modal Header -->
+      <div class="px-6 py-5 bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-500 text-slate-950 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl">👑</span>
+          <div>
+            <h3 class="text-lg font-black font-display leading-tight">Robar el Puesto #1</h3>
+            <p class="text-xs font-semibold text-amber-950/80">Completá los datos y arrebatá la corona publicitaria</p>
+          </div>
+        </div>
+        <button id="btn-cerrar-modal" type="button" class="w-8 h-8 rounded-full bg-black/10 hover:bg-black/20 flex items-center justify-center text-slate-950 font-bold transition-colors cursor-pointer" aria-label="Cerrar modal">
+          ✕
+        </button>
+      </div>
+
+      <!-- Modal Body (Formulario) -->
+      <form id="form-puja" class="p-6 space-y-4">
+        
+        <!-- Input de Puja en USD -->
+        <div class="bg-amber-50/80 border border-amber-200 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-1.5">
+            <label for="input-monto-usd" class="text-xs font-bold uppercase tracking-wider text-amber-900">
+              Tu Puja en Dólares (USD)
+            </label>
+            <span id="badge-minimo-info" class="text-xs font-bold text-amber-700 bg-amber-200/60 px-2 py-0.5 rounded-md">
+              Mínimo: $1 USD
+            </span>
+          </div>
+
+          <div class="relative mt-1">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 font-bold text-lg">
+              $
+            </div>
+            <input 
+              type="number" 
+              id="input-monto-usd" 
+              name="monto_usd" 
+              min="1" 
+              step="1" 
+              required
+              class="w-full pl-8 pr-16 py-3 bg-white border border-amber-300 rounded-xl text-xl font-black text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+              placeholder="1"
+            >
+            <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-500 font-bold text-sm">
+              USD
+            </div>
+          </div>
+
+          <!-- Cálculo en tiempo real ARS -->
+          <div class="mt-2.5 flex items-center justify-between text-xs">
+            <span class="text-slate-600 font-medium">Pagarás en Mercado Pago aprox:</span>
+            <span id="calculo-ars-estimado" class="font-bold text-slate-900 text-sm bg-white px-2 py-0.5 rounded-md border border-amber-200">
+              $... ARS
+            </span>
+          </div>
+        </div>
+
+        <!-- Título del anuncio -->
+        <div>
+          <label for="input-titulo" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            Título del Anuncio o Negocio <span class="text-rose-500">*</span>
+          </label>
+          <input 
+            type="text" 
+            id="input-titulo" 
+            name="titulo" 
+            maxlength="100" 
+            required 
+            placeholder="Ej: Antigravity Store - Las mejores laptops"
+            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium text-slate-900 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+          >
+        </div>
+
+        <!-- Link de destino -->
+        <div>
+          <label for="input-link" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            Enlace de Destino (URL Web) <span class="text-rose-500">*</span>
+          </label>
+          <input 
+            type="url" 
+            id="input-link" 
+            name="link_url" 
+            required 
+            placeholder="https://tu-sitio-o-red-social.com"
+            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium text-slate-900 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+          >
+        </div>
+
+        <!-- URL de la Imagen / Banner -->
+        <div>
+          <label for="input-imagen" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            URL de la Imagen o Logo (Opcional)
+          </label>
+          <input 
+            type="url" 
+            id="input-imagen" 
+            name="imagen_url" 
+            placeholder="https://ejemplo.com/mi-logo.jpg"
+            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium text-slate-900 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+          >
+          <p class="text-[11px] text-slate-400 mt-1">Recomendado: Formato rectangular 16:9 o cuadrado, enlace público directo.</p>
+        </div>
+
+        <!-- Descripción breve -->
+        <div>
+          <label for="input-descripcion" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            Descripción breve (Opcional)
+          </label>
+          <textarea 
+            id="input-descripcion" 
+            name="descripcion" 
+            rows="2" 
+            maxlength="300"
+            placeholder="Escribí una breve frase que describa tu producto, servicio o mensaje."
+            class="w-full px-3.5 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium text-slate-900 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-amber-500 resize-none"
+          ></textarea>
+        </div>
+
+        <!-- Redes Sociales (WhatsApp & Instagram) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+          <div>
+            <label for="input-whatsapp" class="block text-xs font-bold text-slate-600 mb-1">
+              📱 WhatsApp (Opcional)
+            </label>
+            <input 
+              type="text" 
+              id="input-whatsapp" 
+              placeholder="+54 9 11 1234-5678"
+              class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium text-slate-900 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+            >
+          </div>
+          <div>
+            <label for="input-instagram" class="block text-xs font-bold text-slate-600 mb-1">
+              📸 Instagram (Opcional)
+            </label>
+            <input 
+              type="text" 
+              id="input-instagram" 
+              placeholder="@tucuenta"
+              class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium text-slate-900 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+            >
+          </div>
+        </div>
+
+        <!-- Mensaje de error en formulario -->
+        <div id="form-error-msg" class="hidden p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold"></div>
+
+        <!-- Botón Enviar / Redirigir a Mercado Pago -->
+        <div class="pt-2">
+          <button 
+            type="submit" 
+            id="btn-submit-puja"
+            class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black text-sm tracking-wide shadow-md shadow-amber-500/30 flex items-center justify-center gap-2 transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+          >
+            <span id="btn-submit-icon">⚡</span>
+            <span id="btn-submit-text">Continuar al Pago con Mercado Pago</span>
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
