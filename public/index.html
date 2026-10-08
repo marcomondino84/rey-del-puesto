@@ -3,8 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rey del Puesto | La subasta publicitaria King of the Hill</title>
+  <title>Rey del Puesto | Subasta Publicitaria</title>
   <meta name="description" content="Cartelera publicitaria interactiva donde los anunciantes compiten por el Puesto #1 en una subasta dinámica. Conquista el trono pagando $1 USD más.">
+  
+  <!-- Favicon con la coronita dorada -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="alternate icon" href="/favicon.svg">
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -35,36 +39,42 @@
 <body class="min-h-full flex flex-col text-slate-800 antialiased selection:bg-amber-100 selection:text-amber-900">
 
   <!-- ==================== HEADER ==================== -->
-  <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-xs">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+  <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
+    <div class="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-3 sm:gap-4">
       
       <!-- Brand & Dinámica -->
-      <div class="flex items-center gap-3">
-        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-300 flex items-center justify-center shadow-md shadow-amber-500/20 text-2xl animate-crown">
+      <div class="flex items-center gap-2.5 sm:gap-3 shrink-0">
+        <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-300 flex items-center justify-center shadow-md shadow-amber-500/20 text-2xl animate-crown shrink-0">
           👑
         </div>
-        <div>
-          <a href="/" class="text-xl sm:text-2xl font-black tracking-tight text-slate-900 font-display flex items-center gap-1.5 hover:opacity-90">
+        <div class="shrink-0">
+          <a href="/" class="text-lg sm:text-2xl font-black tracking-tight text-slate-900 font-display flex items-center gap-1.5 hover:opacity-90 whitespace-nowrap">
             Rey del Puesto
           </a>
-          <p class="text-xs text-slate-500 font-medium hidden sm:block">
+          <p class="text-[11px] sm:text-xs text-slate-500 font-medium hidden xl:block whitespace-nowrap">
             Subasta publicitaria en vivo • Sé el Rey del Puesto por solo <span class="font-bold text-amber-600">+$1 USD</span>
           </p>
         </div>
       </div>
 
-      <!-- Ticker Cotización & CTA -->
-      <div class="flex items-center gap-3 sm:gap-4">
+      <!-- Ticker Cotización & CTA en una sola línea -->
+      <div class="flex items-center gap-2 sm:gap-3 shrink-0 flex-nowrap">
+        <!-- Contador de Personas Conectadas en Vivo (Público) -->
+        <div id="badge-online-publico" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/90 text-xs font-semibold text-emerald-800 whitespace-nowrap shrink-0" title="Visitantes activos en la subasta">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
+          <span class="whitespace-nowrap"><span id="contador-online" class="font-black">27</span> viendo ahora</span>
+        </div>
+
         <!-- Cotización Dólar Blue -->
-        <div id="dolar-ticker" class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700" title="Cotización oficial provista por DolarApi">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>1 USD ≈ <span id="ticker-ars" class="text-slate-900 font-bold">$...</span> ARS</span>
+        <div id="dolar-ticker" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200/90 text-xs font-semibold text-slate-700 whitespace-nowrap shrink-0" title="Cotización oficial provista por DolarApi">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
+          <span class="whitespace-nowrap">1 USD ≈ <span id="ticker-ars" class="font-bold text-slate-900">$...</span> ARS</span>
         </div>
 
         <!-- Botón CTA Principal -->
-        <button id="btn-abrir-puja" type="button" class="relative group inline-flex items-center gap-2 px-4 sm:px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-bold text-sm shadow-md shadow-amber-500/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer">
-          <span class="text-base group-hover:scale-110 transition-transform">👑</span>
-          <span id="btn-cta-text">Ser el Rey del Puesto</span>
+        <button id="btn-abrir-puja" type="button" class="relative group inline-flex items-center gap-2 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-bold text-xs sm:text-sm whitespace-nowrap shadow-md shadow-amber-500/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer shrink-0">
+          <span class="text-sm sm:text-base group-hover:scale-110 transition-transform shrink-0">👑</span>
+          <span id="btn-cta-text" class="whitespace-nowrap">Ser el Rey del Puesto</span>
         </button>
       </div>
 
@@ -172,11 +182,11 @@
   </footer>
 
   <!-- ==================== MODAL DE PUJA ==================== -->
-  <div id="modal-puja" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 overflow-y-auto modal-backdrop">
-    <div class="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-8 transform transition-all">
+  <div id="modal-puja" class="fixed inset-0 z-50 hidden overflow-y-auto modal-backdrop p-2.5 sm:p-4 flex items-start sm:items-center justify-center overscroll-contain">
+    <div class="relative w-full max-w-lg my-auto max-h-[92vh] max-h-[92dvh] flex flex-col bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all">
       
-      <!-- Modal Header -->
-      <div class="px-6 py-5 bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-500 text-slate-950 flex items-center justify-between">
+      <!-- Modal Header (Fijo arriba) -->
+      <div class="shrink-0 px-4 sm:px-6 py-3.5 bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-500 text-slate-950 flex items-center justify-between">
         <div class="flex items-center gap-2.5">
           <span class="text-2xl">👑</span>
           <div>
@@ -189,12 +199,12 @@
         </button>
       </div>
 
-      <!-- Modal Body (Formulario) -->
-      <form id="form-puja" class="p-6 space-y-4">
+      <!-- Modal Body (Scrollable interno para no desbordar ninguna pantalla) -->
+      <form id="form-puja" class="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-3.5 overscroll-contain">
         
         <!-- Input de Puja en USD -->
-        <div class="bg-amber-50/80 border border-amber-200 rounded-2xl p-4">
-          <div class="flex items-center justify-between mb-1.5">
+        <div class="bg-amber-50/80 border border-amber-200 rounded-2xl p-3.5">
+          <div class="flex items-center justify-between mb-1">
             <label for="input-monto-usd" class="text-xs font-bold uppercase tracking-wider text-amber-900">
               Tu Puja en Dólares (USD)
             </label>
@@ -214,7 +224,7 @@
               min="1" 
               step="1" 
               required
-              class="w-full pl-8 pr-16 py-3 bg-white border border-amber-300 rounded-xl text-xl font-black text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+              class="w-full pl-8 pr-16 py-2.5 bg-white border border-amber-300 rounded-xl text-xl font-black text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
               placeholder="1"
             >
             <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-500 font-bold text-sm">
@@ -223,7 +233,7 @@
           </div>
 
           <!-- Cálculo en tiempo real ARS -->
-          <div class="mt-2.5 flex items-center justify-between text-xs">
+          <div class="mt-2 flex items-center justify-between text-xs">
             <span class="text-slate-600 font-medium">Pagarás en Mercado Pago aprox:</span>
             <span id="calculo-ars-estimado" class="font-bold text-slate-900 text-sm bg-white px-2 py-0.5 rounded-md border border-amber-200">
               $... ARS
@@ -262,19 +272,71 @@
           >
         </div>
 
-        <!-- URL de la Imagen / Banner -->
-        <div>
-          <label for="input-imagen" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-            URL de la Imagen o Logo (Opcional)
-          </label>
-          <input 
-            type="url" 
-            id="input-imagen" 
-            name="imagen_url" 
-            placeholder="https://ejemplo.com/mi-logo.jpg"
-            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium text-slate-900 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-amber-500"
-          >
-          <p class="text-[11px] text-slate-400 mt-1">Recomendado: Formato rectangular 16:9 o cuadrado, enlace público directo.</p>
+        <!-- Banner o Logo: Subir archivo o pegar link -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+              Banner o Logo (Opcional)
+            </label>
+            <!-- Selector de modo -->
+            <div class="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg text-[11px] font-bold">
+              <button type="button" id="tab-subir-archivo" class="px-2.5 py-1 rounded-md bg-white text-slate-900 shadow-2xs transition-all cursor-pointer">
+                📁 Subir Foto
+              </button>
+              <button type="button" id="tab-pegar-link" class="px-2.5 py-1 rounded-md text-slate-500 hover:text-slate-900 transition-all cursor-pointer">
+                🔗 Pegar Link
+              </button>
+            </div>
+          </div>
+
+          <!-- Input oculto que guarda el valor final para la API -->
+          <input type="hidden" id="input-imagen-final" name="imagen_url">
+
+          <!-- Modo 1: Subir Archivo con auto-compresión -->
+          <div id="panel-subir-archivo">
+            <label for="input-archivo-imagen" class="border-2 border-dashed border-slate-300 hover:border-amber-400 bg-slate-50 hover:bg-amber-50/20 rounded-2xl p-3.5 flex flex-col items-center justify-center text-center cursor-pointer transition-all group">
+              <input type="file" id="input-archivo-imagen" accept="image/*" class="sr-only">
+              <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg mb-1 group-hover:scale-110 transition-transform">
+                📷
+              </div>
+              <span class="text-xs font-bold text-slate-800">Seleccionar imagen desde tu dispositivo</span>
+              <span class="text-[11px] text-slate-400 mt-0.5">Se comprimirá y optimizará automáticamente sin perder nitidez</span>
+            </label>
+            <div id="estado-compresion" class="hidden text-[11px] font-bold text-amber-600 flex items-center gap-1.5 px-2 mt-1">
+              <span class="animate-spin">⏳</span>
+              <span id="texto-compresion">Optimizando y subiendo imagen...</span>
+            </div>
+          </div>
+
+          <!-- Modo 2: Pegar Link URL -->
+          <div id="panel-pegar-link" class="hidden">
+            <input 
+              type="url" 
+              id="input-imagen-url" 
+              placeholder="https://ejemplo.com/mi-logo.jpg"
+              class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium text-slate-900 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+            >
+          </div>
+
+          <!-- Contenedor de previsualización en vivo de la imagen -->
+          <div id="preview-imagen-container" class="hidden p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+            <div class="flex items-center justify-between mb-1.5 text-[11px] font-bold text-slate-500">
+              <span>Vista previa del banner:</span>
+              <div class="flex items-center gap-2">
+                <span id="preview-peso-info" class="text-slate-400 font-mono text-[10px]"></span>
+                <span id="preview-estado" class="text-emerald-600">✓ Banner listo</span>
+                <button type="button" id="btn-remover-imagen" class="text-rose-500 hover:text-rose-700 font-bold ml-1 cursor-pointer">✕ Quitar</button>
+              </div>
+            </div>
+            <div class="h-28 rounded-lg overflow-hidden bg-slate-900 flex items-center justify-center relative">
+              <img id="preview-imagen-tag" src="" alt="Vista previa" class="w-full h-full object-cover">
+              <div id="preview-imagen-error" class="hidden text-xs text-rose-600 font-semibold p-3 text-center bg-rose-50 border border-rose-200 w-full h-full flex flex-col items-center justify-center gap-1">
+                <span class="text-base">⚠️</span>
+                <span>No se pudo cargar la imagen de este enlace.</span>
+                <span class="text-[10px] text-slate-500 font-normal">Revisá la URL o subí el archivo directamente.</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Descripción breve -->
@@ -315,6 +377,17 @@
               placeholder="@tucuenta"
               class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium text-slate-900 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-amber-500"
             >
+          </div>
+        </div>
+
+        <!-- Advertencia destacada al subastador -->
+        <div class="p-3.5 rounded-xl bg-amber-50/90 border border-amber-300 text-amber-950 text-xs flex gap-2.5 items-start">
+          <span class="text-lg shrink-0">⚠️</span>
+          <div class="space-y-0.5">
+            <p class="font-bold text-amber-900">Revisá bien tus datos antes de continuar</p>
+            <p class="text-amber-800 text-[11px] leading-relaxed">
+              Una vez confirmada la puja y aprobado el pago, tu anuncio se publicará de inmediato y <strong>no admite correcciones posteriores</strong>.
+            </p>
           </div>
         </div>
 

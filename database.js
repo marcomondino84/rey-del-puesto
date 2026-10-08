@@ -168,7 +168,67 @@ const db = {
     const stmt = dbDriver.prepare("SELECT COUNT(*) as total FROM anuncios WHERE estado = 'activo'");
     const res = stmt.get();
     return res ? Number(res.total) : 0;
+  },
+
+  /**
+   * Obtiene todos los anuncios registrados (para el panel de administración)
+   */
+  getTodosLosAnuncios() {
+    const stmt = dbDriver.prepare("SELECT * FROM anuncios ORDER BY created_at DESC");
+    return stmt.all() || [];
+  },
+
+  /**
+   * Actualiza los datos de un anuncio desde el panel de administración
+   */
+  actualizarAnuncio(id, { titulo, descripcion, link_url, imagen_url, redes_json, estado }) {
+    const stmt = dbDriver.prepare(`
+      UPDATE anuncios 
+      SET titulo = ?, descripcion = ?, link_url = ?, imagen_url = ?, redes_json = ?, estado = ?
+      WHERE id = ?
+    `);
+    const result = stmt.run(
+      titulo,
+      descripcion || '',
+      link_url,
+      imagen_url || '',
+      redes_json || '{}',
+      estado || 'activo',
+      Number(id)
+    );
+    return result.changes > 0;
+  },
+
+  /**
+   * Elimina un anuncio por su ID
+   */
+  eliminarAnuncio(id) {
+    const stmt = dbDriver.prepare("DELETE FROM anuncios WHERE id = ?");
+    const result = stmt.run(Number(id));
+    return result.changes > 0;
+  },
+
+  /**
+   * Estadísticas generales para el dashboard de administración
+   */
+  getEstadisticasTotales() {
+    const stmt = dbDriver.prepare(`
+      SELECT 
+        COUNT(CASE WHEN estado = 'activo' THEN 1 END) as activos,
+        COUNT(CASE WHEN estado = 'pendiente' THEN 1 END) as pendientes,
+        COALESCE(SUM(CASE WHEN estado = 'activo' THEN monto_usd ELSE 0 END), 0) as total_usd,
+        COALESCE(SUM(CASE WHEN estado = 'activo' THEN monto_ars ELSE 0 END), 0) as total_ars
+      FROM anuncios
+    `);
+    const res = stmt.get();
+    return {
+      activos: res ? Number(res.activos) : 0,
+      pendientes: res ? Number(res.pendientes) : 0,
+      total_usd: res ? Number(res.total_usd) : 0,
+      total_ars: res ? Number(res.total_ars) : 0
+    };
   }
 };
 
 module.exports = db;
+

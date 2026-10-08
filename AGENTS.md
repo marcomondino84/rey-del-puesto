@@ -37,3 +37,10 @@ Para garantizar la máxima calidad y fiabilidad, el proyecto se desarrolla y man
 1. **Fase Frontend:** Diseño de componentes, maquetación del Hero #1, lista horizontal #2-#100, modal de puja y cálculo de cotización en tiempo real.
 2. **Fase Backend:** Creación de base de datos SQLite, endpoints `/api/anuncios`, `/api/crear-puja`, `/api/webhook-mp`, cotizador blue y Mercado Pago.
 3. **Fase QA & Validación:** Pruebas de integración, verificación de idempotencia, seguridad anti-tampering y scripts de despliegue listos para producción.
+
+---
+
+## 4. Política Estricta de Desarrollo Local y Control de Deploy
+- **Ambiente de Trabajo Predeterminado:** TODO cambio de código, diseño o lógica se implementa y prueba exclusivamente en **entorno LOCAL** (`http://localhost:3050`).
+- **Control de Versiones (Git / GitHub):** NO realizar `git commit` ni `git push` de manera automática. El usuario decide cuándo y con qué mensaje se versiona.
+- **Despliegue a Producción (VPS DonWeb):** El despliegue al servidor VPS **SOLO se ejecuta cuando el usuario dé una orden explícita** (*"hacé deploy"*, *"subilo al VPS"*, *"desplegalo"*). Nunca antes.

@@ -38,10 +38,29 @@ const DOM = {
   // Campos del formulario
   inputTitulo: document.getElementById('input-titulo'),
   inputLink: document.getElementById('input-link'),
-  inputImagen: document.getElementById('input-imagen'),
   inputDescripcion: document.getElementById('input-descripcion'),
   inputWhatsapp: document.getElementById('input-whatsapp'),
-  inputInstagram: document.getElementById('input-instagram')
+  inputInstagram: document.getElementById('input-instagram'),
+
+  // Uploader con auto-compresión y selector de imagen
+  tabSubirArchivo: document.getElementById('tab-subir-archivo'),
+  tabPegarLink: document.getElementById('tab-pegar-link'),
+  panelSubirArchivo: document.getElementById('panel-subir-archivo'),
+  panelPegarLink: document.getElementById('panel-pegar-link'),
+  inputArchivoImagen: document.getElementById('input-archivo-imagen'),
+  inputImagenUrl: document.getElementById('input-imagen-url'),
+  inputImagenFinal: document.getElementById('input-imagen-final'),
+  estadoCompresion: document.getElementById('estado-compresion'),
+  textoCompresion: document.getElementById('texto-compresion'),
+  btnRemoverImagen: document.getElementById('btn-remover-imagen'),
+  previewPesoInfo: document.getElementById('preview-peso-info'),
+
+  // Contador de personas en vivo y live preview
+  contadorOnline: document.getElementById('contador-online'),
+  previewContainer: document.getElementById('preview-imagen-container'),
+  previewTag: document.getElementById('preview-imagen-tag'),
+  previewError: document.getElementById('preview-imagen-error'),
+  previewEstado: document.getElementById('preview-estado')
 };
 
 // Formateador de moneda en pesos argentinos
@@ -360,8 +379,12 @@ function abrirModalPuja() {
   }
   if (DOM.modalPuja) {
     DOM.modalPuja.classList.remove('hidden');
+    DOM.modalPuja.scrollTop = 0;
+    if (DOM.formPuja) DOM.formPuja.scrollTop = 0;
     document.body.style.overflow = 'hidden';
-    DOM.inputTitulo.focus();
+    setTimeout(() => {
+      if (DOM.inputTitulo) DOM.inputTitulo.focus();
+    }, 50);
   }
 }
 
@@ -384,7 +407,7 @@ async function procesarEnvioPuja(e) {
   const montoUsd = Number(DOM.inputMontoUsd.value);
   const titulo = DOM.inputTitulo.value.trim();
   const linkUrl = DOM.inputLink.value.trim();
-  const imagenUrl = DOM.inputImagen.value.trim();
+  const imagenUrl = (DOM.inputImagenFinal?.value || '').trim();
   const descripcion = DOM.inputDescripcion.value.trim();
   const whatsapp = DOM.inputWhatsapp.value.trim();
   const instagram = DOM.inputInstagram.value.trim();
@@ -544,10 +567,234 @@ document.addEventListener('DOMContentLoaded', () => {
     DOM.formPuja.addEventListener('submit', procesarEnvioPuja);
   }
 
+  // Configuración de subida, compresión y previsualización de imágenes
+  configurarManejadorImagenes();
+
+  // Contador de personas en vivo
+  actualizarContadorOnline();
+  setInterval(actualizarContadorOnline, 12000);
+
   // Recarga periódica suave cada 30 segundos
   setInterval(cargarDatosCartelera, 30000);
 });
 
+/**
+ * Configura los eventos del selector de imagen (subir archivo con compresión vs pegar enlace)
+ */
+function configurarManejadorImagenes() {
+  if (!DOM.tabSubirArchivo || !DOM.tabPegarLink) return;
+
+  // 1. Selector de pestañas
+  DOM.tabSubirArchivo.addEventListener('click', () => {
+    DOM.tabSubirArchivo.className = 'px-2.5 py-1 rounded-md bg-white text-slate-900 shadow-2xs transition-all cursor-pointer';
+    DOM.tabPegarLink.className = 'px-2.5 py-1 rounded-md text-slate-500 hover:text-slate-900 transition-all cursor-pointer';
+    DOM.panelSubirArchivo.classList.remove('hidden');
+    DOM.panelPegarLink.classList.add('hidden');
+  });
+
+  DOM.tabPegarLink.addEventListener('click', () => {
+    DOM.tabPegarLink.className = 'px-2.5 py-1 rounded-md bg-white text-slate-900 shadow-2xs transition-all cursor-pointer';
+    DOM.tabSubirArchivo.className = 'px-2.5 py-1 rounded-md text-slate-500 hover:text-slate-900 transition-all cursor-pointer';
+    DOM.panelPegarLink.classList.remove('hidden');
+    DOM.panelSubirArchivo.classList.add('hidden');
+  });
+
+  // 2. Subida de archivo con compresión en Canvas
+  if (DOM.inputArchivoImagen) {
+    DOM.inputArchivoImagen.addEventListener('change', async (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        mostrarErrorFormulario('El archivo debe ser una imagen válida (JPG, PNG, WebP).');
+        return;
+      }
+
+      await procesarYSubirImagenArchivo(file);
+    });
+  }
+
+  // 3. Pegar enlace URL manual con previsualización en vivo
+  if (DOM.inputImagenUrl) {
+    let timerUrl = null;
+    DOM.inputImagenUrl.addEventListener('input', () => {
+      clearTimeout(timerUrl);
+      timerUrl = setTimeout(() => {
+        const url = (DOM.inputImagenUrl.value || '').trim();
+        if (!url) {
+          limpiarPreviewImagen();
+          return;
+        }
+
+        if (DOM.inputImagenFinal) {
+          DOM.inputImagenFinal.value = url;
+        }
+        verificarYMostrarPreview(url, null);
+      }, 350);
+    });
+  }
+
+  // 4. Botón para remover imagen cargada
+  if (DOM.btnRemoverImagen) {
+    DOM.btnRemoverImagen.addEventListener('click', () => {
+      limpiarPreviewImagen();
+    });
+  }
+}
+
+/**
+ * Comprime y adapta la imagen al tamaño ideal de la cartelera en el cliente (HTML5 Canvas)
+ * y la sube al servidor en formato WebP de ultrabajo peso.
+ */
+async function procesarYSubirImagenArchivo(file) {
+  try {
+    if (DOM.estadoCompresion) {
+      DOM.estadoCompresion.classList.remove('hidden');
+      DOM.textoCompresion.textContent = 'Comprimiendo y adaptando imagen...';
+    }
+    if (DOM.btnSubmitPuja) DOM.btnSubmitPuja.disabled = true;
+
+    // Leer el archivo en memoria
+    const imgBitmap = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error('No se pudo procesar la imagen elegida.'));
+        img.src = e.target.result;
+      };
+      reader.onerror = () => reject(new Error('Error de lectura del dispositivo.'));
+      reader.readAsDataURL(file);
+    });
+
+    // Dimensiones óptimas de banner para los puestos (Max 1200px x 630px proporcional)
+    const MAX_WIDTH = 1200;
+    const MAX_HEIGHT = 630;
+    let width = imgBitmap.width;
+    let height = imgBitmap.height;
+
+    if (width > MAX_WIDTH || height > MAX_HEIGHT) {
+      const ratio = Math.min(MAX_WIDTH / width, MAX_HEIGHT / height);
+      width = Math.round(width * ratio);
+      height = Math.round(height * ratio);
+    }
+
+    // Dibujar en Canvas con suavizado de alta calidad
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(imgBitmap, 0, 0, width, height);
+
+    // Exportar a WebP a calidad 0.82 (con fallback automático a JPEG)
+    let compressedDataUrl = canvas.toDataURL('image/webp', 0.82);
+    if (!compressedDataUrl.startsWith('data:image/webp')) {
+      compressedDataUrl = canvas.toDataURL('image/jpeg', 0.82);
+    }
+
+    if (DOM.textoCompresion) {
+      DOM.textoCompresion.textContent = 'Guardando en el servidor...';
+    }
+
+    // Subir la imagen optimizada a la API
+    const response = await fetch('/api/subir-imagen', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        image: compressedDataUrl,
+        filename: file.name
+      })
+    });
+
+    const data = await response.json();
+    if (!response.ok || !data.success) {
+      throw new Error(data.error || 'Error al subir la imagen.');
+    }
+
+    // Almacenar la URL para la creación de la puja
+    if (DOM.inputImagenFinal) {
+      DOM.inputImagenFinal.value = data.url;
+    }
+
+    const pesoFinalKB = (data.sizeBytes / 1024).toFixed(0);
+    const infoCompresion = `${pesoFinalKB} KB`;
+
+    verificarYMostrarPreview(data.url, infoCompresion);
+
+  } catch (err) {
+    console.error('Error compresión/subida:', err);
+    mostrarErrorFormulario(`Error al procesar la imagen: ${err.message}`);
+  } finally {
+    if (DOM.estadoCompresion) DOM.estadoCompresion.classList.add('hidden');
+    if (DOM.btnSubmitPuja) DOM.btnSubmitPuja.disabled = false;
+  }
+}
+
+/**
+ * Valida y muestra el contenedor de vista previa de la imagen
+ */
+function verificarYMostrarPreview(url, pesoInfo = null) {
+  if (!DOM.previewContainer) return;
+
+  DOM.previewContainer.classList.remove('hidden');
+  DOM.previewTag.classList.remove('hidden');
+  DOM.previewError.classList.add('hidden');
+  DOM.previewEstado.textContent = 'Verificando...';
+  DOM.previewEstado.className = 'text-amber-600 font-bold';
+
+  if (DOM.previewPesoInfo) {
+    DOM.previewPesoInfo.textContent = pesoInfo ? `⚡ ${pesoInfo} (Optimizada)` : '';
+  }
+
+  const testImg = new Image();
+  testImg.onload = () => {
+    DOM.previewTag.src = url;
+    DOM.previewTag.classList.remove('hidden');
+    DOM.previewError.classList.add('hidden');
+    DOM.previewEstado.textContent = '✓ Imagen lista';
+    DOM.previewEstado.className = 'text-emerald-600 font-bold';
+  };
+  testImg.onerror = () => {
+    DOM.previewTag.classList.add('hidden');
+    DOM.previewError.classList.remove('hidden');
+    DOM.previewEstado.textContent = '⚠️ Enlace no válido';
+    DOM.previewEstado.className = 'text-rose-600 font-bold';
+  };
+  testImg.src = url;
+}
+
+/**
+ * Limpia el estado de la imagen y oculta la vista previa
+ */
+function limpiarPreviewImagen() {
+  if (DOM.inputImagenFinal) DOM.inputImagenFinal.value = '';
+  if (DOM.inputArchivoImagen) DOM.inputArchivoImagen.value = '';
+  if (DOM.inputImagenUrl) DOM.inputImagenUrl.value = '';
+  if (DOM.previewContainer) DOM.previewContainer.classList.add('hidden');
+  if (DOM.previewTag) DOM.previewTag.src = '';
+  if (DOM.previewPesoInfo) DOM.previewPesoInfo.textContent = '';
+  if (DOM.estadoCompresion) DOM.estadoCompresion.classList.add('hidden');
+}
+
+// Actualización periódica del contador de personas conectadas
+async function actualizarContadorOnline() {
+  try {
+    const res = await fetch('/api/metricas-online');
+    if (res.ok) {
+      const data = await res.json();
+      if (data.online_publico && DOM.contadorOnline) {
+        DOM.contadorOnline.textContent = data.online_publico;
+      }
+    }
+  } catch (e) {
+    // Si falla, no interrumpir la experiencia
+  }
+}
+
 // Exponer funciones globales para botones inline si fuera necesario
 window.abrirModalPuja = abrirModalPuja;
 window.cerrarModalPuja = cerrarModalPuja;
+window.limpiarPreviewImagen = limpiarPreviewImagen;
+
